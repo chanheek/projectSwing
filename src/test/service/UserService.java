@@ -1,4 +1,4 @@
 package test.service;
 
-public class UserService {
+public interface UserService {
 }

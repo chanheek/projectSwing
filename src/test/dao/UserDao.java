@@ -1,5 +1,5 @@
 package test.dao;
 
-public class UserDao {
+public interface UserDao {
 
 }
