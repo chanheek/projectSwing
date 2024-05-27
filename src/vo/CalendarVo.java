@@ -1,8 +1,8 @@
-package VO;
+package vo;
 
 import java.util.Date;
 
-public class CalendarVO {
+public class CalendarVo {
     private int id;
     private Date YYYYMMDD;
 

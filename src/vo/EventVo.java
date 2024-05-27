@@ -1,8 +1,8 @@
-package VO;
+package vo;
 
 import java.util.Date;
 
-public class EventVO {
+public class EventVo {
     private int id;
     private String event;
     private Date startDate;

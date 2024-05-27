@@ -1,6 +1,6 @@
-package VO;
+package vo;
 
-public class EventCalendarVO {
+public class EventCalendarVo {
     private int id;
     private String name;
     private String use;

@@ -1,6 +1,6 @@
-package VO;
+package vo;
 
-public class Users {
+public class UserVo {
     private int id;
     private String jobId;
     private String name;
