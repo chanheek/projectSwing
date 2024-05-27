@@ -10,6 +10,7 @@ public class JdbcConnection {
 		Connection conn5 = DBConnection.getConnection();
 
         System.out.println("성공");
+        System.out.println("TEST");
 
     }
 
