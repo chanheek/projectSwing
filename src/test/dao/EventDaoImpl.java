@@ -1,46 +1,112 @@
 package test.dao;
 
 import db.DBConnection;
+import oracle.jdbc.OracleTypes;
+import test.service.EventServiceImpl;
+import test.vo.EventCalendarVo;
 import test.vo.EventVo;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.sql.*;
+import java.util.Properties;
 
 public class EventDaoImpl implements EventDao{
-    @Override
-    public void createEvent(EventVo event) {
 
+    private Connection connection;
+
+    public EventDaoImpl(Connection connection) {
+        this.connection = connection;
     }
 
-//    public void insertManagerEvent(String event, String startDate, String endDate, int eventCalendarId) {
-//        String sql = "{call manager_pkg.insertManagerEvent(?, ?, ?, ?)}";
-//
-//        try (Connection conn = DBConnection.getConnection();
-//             CallableStatement cstmt = conn.prepareCall(sql)) {
-//
-//            cstmt.setString(1, event);
-//            cstmt.setString(2, startDate);
-//            cstmt.setString(3, endDate);
-//            cstmt.setInt(4, eventCalendarId);
-//
-//            cstmt.execute();
-//            System.out.println("Event inserted successfully.");
-//        } catch (SQLException ex) {
-//            ex.printStackTrace();
-//            throw new RuntimeException("Error while inserting event: " + ex.getMessage(), ex);
-//        }
-//    }
-//    public static void main(String[] args) {
-//        EventDaoImpl eventDao = new EventDaoImpl();
-//
-//        String event = "New Event";
-//        String startDate = "2024-05-27";
-//        String endDate = "2024-05-27";
-//        int eventCalendarId = 1;
-//
-//        eventDao.insertManagerEvent(event, startDate, endDate, eventCalendarId);
-//    }
+    @Override
+    public void getAllEvent () throws SQLException {
+
+        String sql = "{call user_pkg.get_calendar_events(?,?)}";
+
+        try(CallableStatement callableStatement = connection.prepareCall(sql)) {
+            EventCalendarVo getId = new EventCalendarVo();
+            callableStatement.setInt(1, getId.getId());
+            callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
+            callableStatement.execute();
+
+            ResultSet resultSet = (ResultSet) callableStatement.getObject(2);
+
+            while (resultSet.next()) {
+                String yyyymmdd = resultSet.getString("YYYYMMDD");
+                String event = resultSet.getString("EVENT");
+                String startDate = resultSet.getString("START_DATE");
+                String endDate = resultSet.getString("END_DATE");
+
+                System.out.println("Date: " + yyyymmdd + ", Event: " + event +
+                        ", Start Date: " + startDate + ", End Date: " + endDate);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void createEvent(EventVo event) {};
+
+    @Override
+    public void getPersonalEvent(EventCalendarVo eventCal) throws SQLException {
+        String sql = "{call user_pkg.get_calendar_events(?,?)}";
+
+        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
+//            EventCalendarVo getId = new EventCalendarVo();
+            callableStatement.setInt(1, eventCal.getId());
+            callableStatement.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+
+
+            callableStatement.execute();
+
+            try (ResultSet resultSet = (ResultSet) callableStatement.getObject(2)) {
+                while (resultSet.next()) {
+                    String yyyymmdd = resultSet.getString("YYYYMMDD");
+                    String events = resultSet.getString("EVENT");
+                    String startDate = resultSet.getString("START_DATE");
+                    String endDate = resultSet.getString("END_DATE");
+
+                    System.out.println("Date: " + yyyymmdd + ", Event: " + events +
+                            ", Start Date: " + startDate + ", End Date: " + endDate);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        Properties properties = new Properties();
+        try (Reader reader = new FileReader("lib/oracle.properties")) {
+            properties.load(reader);
+
+            String url = properties.getProperty("url");
+            String username = properties.getProperty("user");
+            String password = properties.getProperty("password");
+
+            try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                
+                EventDaoImpl eventDao = new EventDaoImpl(connection);
+                EventCalendarVo eventCal = new EventCalendarVo();
+                
+                //변수로 바꿀 것
+                eventCal.setId(3);
+                eventDao.getPersonalEvent(eventCal);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }
 
 
