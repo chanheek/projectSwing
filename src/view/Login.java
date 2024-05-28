@@ -1,12 +1,17 @@
 package view;
 
+import db.DBConnection;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class Login extends JFrame {
+    private JTextField idField;
+    private JPasswordField pwField;
 
     public Login() {
         // Set the title of the window
@@ -34,9 +39,9 @@ public class Login extends JFrame {
 
         // Add labels and text fields to the form
         JLabel idLabel = new JLabel("아이디");
-        JTextField idField = new JTextField(20);
+        idField = new JTextField(20);
         JLabel pwLabel = new JLabel("패스워드");
-        JPasswordField pwField = new JPasswordField(20);
+        pwField = new JPasswordField(20);
 
         // Set preferred size for text fields
         Dimension fieldSize = new Dimension(150, 25);
@@ -63,6 +68,13 @@ public class Login extends JFrame {
         buttonPanel.setLayout(new GridLayout(1, 2, 10, 10));
 
         JButton checkButton = new JButton("확인");
+        checkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkLogin();
+            }
+        });
+
         JButton cancelButton = new JButton("취소");
         cancelButton.addActionListener(e -> System.exit(0));
 
@@ -86,6 +98,51 @@ public class Login extends JFrame {
 
         // Center the window
         setLocationRelativeTo(null);
+    }
+
+    private void checkLogin() {
+        String id = idField.getText();
+        String password = new String(pwField.getPassword());
+
+        String call = "{CALL validate_user(?, ?, ?)}";
+
+        Connection connection = null;
+        CallableStatement statement = null;
+
+        try {
+            connection = DBConnection.getConnection();
+            statement = connection.prepareCall(call);
+
+            statement.setString(1, id);
+            statement.setString(2, password);
+            statement.registerOutParameter(3, Types.INTEGER);
+
+            statement.execute();
+
+            int userExists = statement.getInt(3);
+
+            if (userExists > 0) {
+                JOptionPane.showMessageDialog(this, "로그인 성공!");
+                // 로그인 창을 닫고 MainScreen을 띄웁니다
+                this.dispose(); // 현재 로그인 창을 닫습니다
+                SwingUtilities.invokeLater(() -> {
+                    new MainFrame().setVisible(true); // MainScreen을 엽니다
+                });
+            } else {
+                JOptionPane.showMessageDialog(this, "아이디나 비밀번호를 다시 입력해주세요.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "데이터베이스 연결에 문제가 발생했습니다.");
+        } finally {
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {
