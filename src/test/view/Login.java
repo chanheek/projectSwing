@@ -1,13 +1,21 @@
-package view;
+package test.view;
 
 import db.DBConnection;
+import test.dao.UserDao;
+import test.dao.UserDaoImpl;
+import test.vo.EventCalendarVo;
+import test.vo.UserVo;
+import view.MainFrame;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class Login extends JFrame {
     private JTextField idField;
@@ -101,7 +109,7 @@ public class Login extends JFrame {
     }
 
     private void checkLogin() {
-        String id = idField.getText();
+        int id = Integer.parseInt(idField.getText());
         String password = new String(pwField.getPassword());
 
         String call = "{CALL validate_user(?, ?, ?)}";
@@ -113,16 +121,27 @@ public class Login extends JFrame {
             connection = DBConnection.getConnection();
             statement = connection.prepareCall(call);
 
-            statement.setString(1, id);
+            statement.setInt(1, id);
             statement.setString(2, password);
             statement.registerOutParameter(3, Types.INTEGER);
 
             statement.execute();
 
+            UserVo userVo = new UserVo();
+            EventCalendarVo eventCalendarVo = new EventCalendarVo();
+
             int userExists = statement.getInt(3);
 
             if (userExists > 0) {
+
+                userVo.setLoginId(id);
+                eventCalendarVo.setUsersLoginId(id);
+
+                UserDaoImpl userDao = new UserDaoImpl(connection);
+                userDao.readUser(userVo);
+
                 JOptionPane.showMessageDialog(this, "로그인 성공!");
+
                 // 로그인 창을 닫고 MainScreen을 띄웁니다
                 this.dispose(); // 현재 로그인 창을 닫습니다
                 SwingUtilities.invokeLater(() -> {
