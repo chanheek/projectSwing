@@ -1,4 +1,4 @@
 package dao;
 
-public class UserDaoImpl {
+public class UserDaoImpl implements UserDao{
 }

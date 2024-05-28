@@ -1,4 +1,4 @@
 package dao;
 
-public class EventDaoImpl {
+public class EventDaoImpl implements EventDao{
 }
