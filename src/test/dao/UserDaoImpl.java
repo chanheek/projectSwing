@@ -83,7 +83,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void delectUser(UserVo user) throws SQLException {
+    public void deleteUser(UserVo user) throws SQLException {
         String sql = "{call Create_users.deleteUsers(?)}";
 
         try (CallableStatement callableStatement = connection.prepareCall(sql)) {
