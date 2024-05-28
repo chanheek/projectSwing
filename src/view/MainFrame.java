@@ -1,72 +1,113 @@
 package view;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
+    private JPanel contentPanel;
+    private CardLayout cardLayout;
 
     public MainFrame() {
         // Set the title of the window
-        setTitle("KUP Main Screen");
+        setTitle("KUP Management System");
 
         // Set the default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Set the size of the window
-        setSize(1024, 768);
+        setSize(800, 600);
 
         // Create a panel for the left menu
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(Color.LIGHT_GRAY);
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setLayout(new GridLayout(2, 1));
 
         // Add buttons or labels to the menu panel
-        String[] menuItems = {"학적 관리", "일정 관리"};
-        for (String item : menuItems) {
-            JLabel label = new JLabel(item);
-            label.setFont(new Font("Serif", Font.BOLD, 20));
-            label.setAlignmentX(Component.CENTER_ALIGNMENT);
-            menuPanel.add(label);
-            menuPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add space between labels
-        }
+        JLabel label1 = new JLabel("학적 관리", SwingConstants.CENTER);
+        JLabel label2 = new JLabel("일정 관리", SwingConstants.CENTER);
+        label1.setFont(new Font("Serif", Font.BOLD, 20));
+        label2.setFont(new Font("Serif", Font.BOLD, 20));
+
+        label1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        label2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        label1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cardLayout.show(contentPanel, "defaultPanel");
+            }
+        });
+        label2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cardLayout.show(contentPanel, "calendarPanel");
+            }
+        });
+
+        menuPanel.add(label1);
+        menuPanel.add(label2);
 
         // Create a panel for the main content area
-        JPanel contentPanel = new JPanel();
-        contentPanel.setBackground(Color.decode("#1565C0")); // Set background color
-        contentPanel.setLayout(new GridBagLayout());
+        contentPanel = new JPanel();
+        cardLayout = new CardLayout();
+        contentPanel.setLayout(cardLayout);
 
-        // Create a panel for the table
-        JPanel tablePanel = new JPanel();
-        tablePanel.setBackground(Color.decode("#E57373")); // Set background color
-        tablePanel.setLayout(new GridLayout(1, 4, 20, 0)); // Set layout with gaps between columns
-        tablePanel.setBorder(new EmptyBorder(50, 50, 50, 50));
+        // Create a panel for the default content
+        JPanel defaultPanel = new JPanel();
+        defaultPanel.setBackground(new Color(70, 130, 180)); // Blue color from the image
+        defaultPanel.setLayout(new GridBagLayout());
 
-        // Add labels to the table panel
-        String[] columnNames = {"학번", "이름", "학년", "전공"};
-        for (String columnName : columnNames) {
-            JLabel columnLabel = new JLabel(columnName, SwingConstants.CENTER);
-            columnLabel.setFont(new Font("Serif", Font.BOLD, 20));
-            columnLabel.setOpaque(true);
-            columnLabel.setBackground(new Color(224, 224, 224));
-            columnLabel.setPreferredSize(new Dimension(150, 100));
-            tablePanel.add(columnLabel);
-        }
-
-        // Set the layout of the content panel to center the table panel
+        // Add a label with "KUP" text to the default content panel
+        JLabel contentLabel = new JLabel("KUP", SwingConstants.CENTER);
+        contentLabel.setFont(new Font("Serif", Font.BOLD, 50));
+        contentLabel.setForeground(Color.BLACK); // Black color
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        contentPanel.add(tablePanel, gbc);
+        gbc.gridwidth = 4;
+        gbc.insets = new Insets(20, 0, 20, 0);
+        defaultPanel.add(contentLabel, gbc);
+
+        // Add text fields for 학번, 이름, 학년, 전공 to the default content panel
+        JTextField idField = new JTextField(10);
+        JTextField nameField = new JTextField(10);
+        JTextField yearField = new JTextField(10);
+        JTextField majorField = new JTextField(10);
+
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        gbc.gridx = 0;
+        defaultPanel.add(new JLabel("학번"), gbc);
+        gbc.gridx = 1;
+        defaultPanel.add(idField, gbc);
+
+        gbc.gridx = 2;
+        defaultPanel.add(new JLabel("이름"), gbc);
+        gbc.gridx = 3;
+        defaultPanel.add(nameField, gbc);
+
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        defaultPanel.add(new JLabel("학년"), gbc);
+        gbc.gridx = 1;
+        defaultPanel.add(yearField, gbc);
+
+        gbc.gridx = 2;
+        defaultPanel.add(new JLabel("전공"), gbc);
+        gbc.gridx = 3;
+        defaultPanel.add(majorField, gbc);
+
+        // Add panels to the content panel
+        contentPanel.add(defaultPanel, "defaultPanel");
+        contentPanel.add(new CalendarPanel(), "calendarPanel");
 
         // Set the layout of the frame and add panels
         setLayout(new BorderLayout());
         add(menuPanel, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
 
-        // Center the window
-        setLocationRelativeTo(null);
+        // Show the default panel initially
+        cardLayout.show(contentPanel, "defaultPanel");
     }
 
     public static void main(String[] args) {
