@@ -2,7 +2,9 @@ package test.dao;
 
 import test.vo.UserVo;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class UserDaoImpl implements UserDao {
     private Connection connection;
