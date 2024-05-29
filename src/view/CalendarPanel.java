@@ -156,6 +156,7 @@ public class CalendarPanel extends JPanel {
         });
     }
 
+
     private void loadEventsFromDatabase() {
         String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
         String username = "kk"; // DB 사용자 이름

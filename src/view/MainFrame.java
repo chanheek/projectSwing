@@ -2,12 +2,15 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import vo.UserVo;
 
 public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private CardLayout cardLayout;
 
-    public MainFrame() {
+    public MainFrame(){};
+
+    public MainFrame(UserVo userVo) {
         // Set the title of the window
         setTitle("KUP Management System");
         // Set the default close operation
@@ -67,9 +70,28 @@ public class MainFrame extends JFrame {
 
         // Add text fields for 학번, 이름, 학년, 전공 to the default content panel
         JTextField idField = new JTextField(10);
+        idField.setText(String.valueOf(userVo.getId()));
+        idField.setEditable(false);
+
         JTextField nameField = new JTextField(10);
+        nameField.setText(userVo.getName());
+        nameField.setEditable(false);
+
+
         JTextField yearField = new JTextField(10);
+        if (userVo.getGrade() < 1) {
+            yearField.setText("MANAGER");
+        } else {
+            yearField.setText(String.valueOf(userVo.getGrade()));
+        }
+        yearField.setEditable(false);
+
         JTextField majorField = new JTextField(10);
+        if (userVo.getMajor() != null) {
+            majorField.setText(String.valueOf(userVo.getGrade()));
+        } else {
+            majorField.setText("MANAGER");
+        }
 
         gbc.gridwidth = 1;
         gbc.gridy = 1;
@@ -110,6 +132,8 @@ public class MainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Create a sample UserVo object
+
         // Create and show the main frame
         MainFrame mainFrame = new MainFrame();
         mainFrame.setVisible(true);

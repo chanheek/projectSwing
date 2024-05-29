@@ -144,7 +144,7 @@ public class Login extends JFrame {
                 // 로그인 창을 닫고 MainScreen을 띄웁니다
                 this.dispose(); // 현재 로그인 창을 닫습니다
                 SwingUtilities.invokeLater(() -> {
-                    new MainFrame().setVisible(true); // MainFrame을 엽니다
+                    new MainFrame(userVo).setVisible(true); // MainFrame을 엽니다
                 });
             } else {
                 JOptionPane.showMessageDialog(this, "아이디나 비밀번호를 다시 입력해주세요.");
