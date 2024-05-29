@@ -357,17 +357,8 @@ public class CalendarPanel extends JPanel {
                             try (Connection connection = DriverManager.getConnection(url, username, password)) {
                                 EventDaoImpl eventDao = new EventDaoImpl(connection);
                                 int eventId = eventDao.getEventId(eventVo, date);
-                                int result = JOptionPane.showConfirmDialog(
-                                        this,
-                                        "삭제하시겠습니까?",
-                                        "일정 삭제",
-                                        JOptionPane.YES_NO_OPTION
-                                );
-                                if (result == JOptionPane.YES_OPTION) {
-                                    eventVo.setId(eventId);
-                                    eventDao.deleteEvent(eventVo);
-                                    updateCalendar();
-                                }
+                                // Now you have the event ID, you can do further actions if needed
+                                showEventDetails(event + " (ID: " + eventId + ")");
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
