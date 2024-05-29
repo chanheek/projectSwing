@@ -51,6 +51,27 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
+    public int getEventId(EventVo event) throws SQLException {
+        String sql = "{call user_pkg.getEventId(?, ?, ?)}";
+
+        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
+            callableStatement.setInt(1, event.getEventCalendarId());
+            callableStatement.setDate(2, Date.valueOf("선택한 날짜"));
+            callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
+            callableStatement.execute();
+
+            ResultSet resultSet = (ResultSet) callableStatement.getObject(2);
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("ID");
+                event.setId(id);
+            }
+        }
+
+        return event.getId();
+    }
+
+    @Override
     public void createEvent(EventVo event) throws SQLException {
         String sql = "{call user_pkg.insertUserEvent(?,?,?,?)}"; // Assuming you have a stored procedure to handle event creation
 
