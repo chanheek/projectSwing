@@ -12,7 +12,4 @@ public interface EventDao {
     // MANAGER CALENDAR
     void getAllEvent () throws SQLException;
 
-    //PERSONAL CALENDAR
-    void getPersonalEvent (EventCalendarVo eventCalId) throws SQLException;
-
 }
