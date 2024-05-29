@@ -8,8 +8,7 @@ import java.sql.SQLException;
 public interface EventDao {
 
     void createEvent(EventVo event) throws SQLException;
-
-    // MANAGER CALENDAR
-    void getAllEvent (EventCalendarVo eventCalendar) throws SQLException;
+    void getAllEvent(EventCalendarVo eventCalendar) throws SQLException;
+    void deleteEvent(EventVo event) throws SQLException;
 
 }

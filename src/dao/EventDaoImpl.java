@@ -65,4 +65,17 @@ public class EventDaoImpl implements EventDao {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void deleteEvent(EventVo event) throws SQLException {
+        String sql = "{call user_pkg.deleteUserEvent(?)}";
+
+        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
+            callableStatement.setInt(1, event.getId());
+
+            callableStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -11,7 +11,7 @@ public class EventVo {
         return id;
     }
 
-    void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
