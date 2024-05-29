@@ -8,9 +8,9 @@ public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private CardLayout cardLayout;
 
-    public MainFrame(){};
+    public MainFrame() {}
 
-    public MainFrame(UserVo userVo) {
+    public MainFrame(UserVo userVo, int eventCalendarId) {
         // Set the title of the window
         setTitle("KUP Management System");
         // Set the default close operation
@@ -29,7 +29,6 @@ public class MainFrame extends JFrame {
         JLabel label2 = new JLabel("일정 관리", SwingConstants.CENTER);
         label1.setFont(new Font("맑은 고딕", Font.BOLD, 25));
         label2.setFont(new Font("맑은 고딕", Font.BOLD, 25));
-//        label1.setFont(new Color();
 
         label1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         label2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -78,7 +77,6 @@ public class MainFrame extends JFrame {
         nameField.setText(userVo.getName());
         nameField.setEditable(false);
 
-
         JTextField yearField = new JTextField(10);
         if (userVo.getGrade() < 1) {
             yearField.setText("MANAGER");
@@ -122,7 +120,7 @@ public class MainFrame extends JFrame {
 
         // Add panels to the content panel
         contentPanel.add(defaultPanel, "defaultPanel");
-        contentPanel.add(new CalendarPanel(), "calendarPanel");
+        contentPanel.add(new CalendarPanel(eventCalendarId), "calendarPanel"); // Pass the eventCalendarId here
 
         // Set the layout of the frame and add panels
         setLayout(new BorderLayout());

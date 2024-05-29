@@ -1,13 +1,14 @@
 package view;
 
+import dao.EventDaoImpl;
+import vo.EventCalendarVo;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -21,8 +22,10 @@ public class CalendarPanel extends JPanel {
     private YearMonth currentYearMonth;
     private Map<LocalDate, String[]> events; // Map to hold events for each date
     private Map<LocalDate, String> notes; // Map to hold notes for each date
+    private int eventCalendarId;
 
-    public CalendarPanel() {
+    public CalendarPanel(int eventCalendarId) {
+        this.eventCalendarId = eventCalendarId;
         setLayout(new BorderLayout());
 
         // Initialize events and notes maps
@@ -141,26 +144,12 @@ public class CalendarPanel extends JPanel {
         String username = "kk"; // DB 사용자 이름
         String password = "kk123"; // DB 비밀번호
 
-        String query = "SELECT yyyymmdd, event FROM manager_calendar_view";
-
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-
-            while (resultSet.next()) {
-                LocalDate date = LocalDate.parse(resultSet.getString("yyyymmdd"));
-                String event = resultSet.getString("event");
-
-                events.putIfAbsent(date, new String[3]);
-                String[] eventList = events.get(date);
-
-                for (int i = 0; i < eventList.length; i++) {
-                    if (eventList[i] == null) {
-                        eventList[i] = event;
-                        break;
-                    }
-                }
-            }
+        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            EventDaoImpl eventDao = new EventDaoImpl(connection);
+            EventCalendarVo eventCalendar = new EventCalendarVo(); // Ensure this has an appropriate ID set if needed
+            eventCalendar.setId(this.eventCalendarId); // Use the event calendar ID passed to the constructor
+            eventDao.getAllEvent(eventCalendar);
+            this.events = eventCalendar.getEvents();
         } catch (Exception e) {
             e.printStackTrace();
         }

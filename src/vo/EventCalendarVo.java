@@ -1,11 +1,15 @@
 package vo;
 
+import java.time.LocalDate;
+import java.util.Map;
+
 public class EventCalendarVo {
     private int id;
     private String name;
     private String use;
     private int usersId;
     private int usersLoginId;
+    private Map<LocalDate, String[]> events;
 
     public int getId() {
         return id;
@@ -45,5 +49,13 @@ public class EventCalendarVo {
 
     public void setUsersLoginId(int usersLoginId) {
         this.usersLoginId = usersLoginId;
+    }
+
+    public Map<LocalDate, String[]> getEvents() {
+        return events;
+    }
+
+    public void setEvents(Map<LocalDate, String[]> events) {
+        this.events = events;
     }
 }
