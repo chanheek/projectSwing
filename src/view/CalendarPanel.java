@@ -70,7 +70,6 @@ public class CalendarPanel extends JPanel {
         JLabel monthLabel = new JLabel("", SwingConstants.CENTER);
         monthLabel.setFont(new Font("Arial", Font.BOLD, 24));
         JButton todayButton = new JButton("오늘");
-        JButton goToButton = new JButton("확인"); // 추가된 버튼
         JButton addEventButton = new JButton("일정 추가"); // 일정 추가 버튼
 
         // Create year and month selectors
@@ -86,18 +85,20 @@ public class CalendarPanel extends JPanel {
         }
         monthComboBox.setFont(new Font("Arial", Font.PLAIN, 18));
 
+        JButton goToButton = new JButton("확인"); // 추가된 버튼
+
         // Add components to control panel
         JPanel navPanel = new JPanel();
         navPanel.add(prevMonthButton);
         navPanel.add(nextMonthButton);
         navPanel.add(todayButton);
-        navPanel.add(goToButton); // "확인" 버튼 추가
         navPanel.add(addEventButton); // "일정 추가" 버튼 추가
         controlPanel.add(navPanel, BorderLayout.WEST);
         controlPanel.add(monthLabel, BorderLayout.CENTER);
         JPanel comboBoxPanel = new JPanel();
         comboBoxPanel.add(yearComboBox);
         comboBoxPanel.add(monthComboBox);
+        comboBoxPanel.add(goToButton); // "확인" 버튼 추가
         controlPanel.add(comboBoxPanel, BorderLayout.EAST);
 
         // Add the table and control panel to the main panel
@@ -245,9 +246,14 @@ public class CalendarPanel extends JPanel {
         JTextArea textArea = new JTextArea(10, 30);
         JScrollPane scrollPane = new JScrollPane(textArea);
 
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         JButton saveButton = new JButton("확인");
         JButton cancelButton = new JButton("취소");
+
+        JPanel buttonRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonRightPanel.add(saveButton);
+        buttonRightPanel.add(cancelButton);
+        buttonPanel.add(buttonRightPanel, BorderLayout.CENTER);
 
         saveButton.addActionListener(e -> {
             int startYear = (int) startYearComboBox.getSelectedItem();
@@ -291,15 +297,13 @@ public class CalendarPanel extends JPanel {
 
         cancelButton.addActionListener(e -> dialog.dispose());
 
-        buttonPanel.add(saveButton);
-        buttonPanel.add(cancelButton);
-
         dialog.add(datePanel, BorderLayout.NORTH);
         dialog.add(scrollPane, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
 
         dialog.pack();
         dialog.setLocationRelativeTo(this);
+        dialog.setModal(false); // 모달 고정 해제
         dialog.setVisible(true);
     }
 
