@@ -10,12 +10,13 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         // Set the title of the window
         setTitle("KUP Management System");
+        setSize(800,1000);
 
         // Set the default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Set the size of the window
-        setSize(800, 600);
+        setSize(1200, 1010);
 
         // Create a panel for the left menu
         JPanel menuPanel = new JPanel();
