@@ -1,6 +1,8 @@
 package dao;
 
 import oracle.jdbc.OracleTypes;
+import vo.CalendarVo;
+import vo.EventCalendarVo;
 import vo.UserVo;
 
 import java.sql.CallableStatement;
@@ -14,7 +16,6 @@ public class UserDaoImpl implements UserDao {
     public UserDaoImpl(Connection connection) {
         this.connection = connection;
     }
-
 
     @Override
     public void readUser(UserVo user) throws SQLException {
@@ -60,55 +61,35 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void createUser(UserVo user) throws SQLException {
-        String sql = "{call Create_users.createUsers(?, ?, ?, ?, ?, ?, ?, ?)}";
+    public void readUserCalendarInfo(EventCalendarVo eventCalendar) throws SQLException {
+        String sql = "{call user_pkg.getUserCalendarInfo(?, ?)}";
 
         try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-            // Set the input parameters
-            callableStatement.setInt(1, user.getId());
-            callableStatement.setString(2, user.getJobId());
-            callableStatement.setString(3, user.getName());
-            callableStatement.setInt(4, user.getGrade());
-            callableStatement.setString(5, user.getMajor());
-            callableStatement.setInt(6, user.getLoginId());
-            callableStatement.setString(7, user.getPassword());
-            callableStatement.setInt(8, user.getEventCalendarId());
 
-            // Execute the stored procedure
-            callableStatement.execute();
-            System.out.println("유저 생성 성공");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+            callableStatement.setInt(1, eventCalendar.getUsersLoginId());
 
-    @Override
-    public void deleteUser(UserVo user) throws SQLException {
-        String sql = "{call Create_users.deleteUsers(?)}";
-
-        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-            callableStatement.setInt(1, user.getId());
-            callableStatement.execute();
-            System.out.println("유저 삭제 성공");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateUser(UserVo user) throws SQLException {
-        String sql = "{ call Create_users.updateUsers(?,?,?,?,?,?) }";
-
-        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-            callableStatement.setInt(1, user.getId());
-            callableStatement.setString(2, user.getName());
-            callableStatement.setInt(3, user.getGrade());
-            callableStatement.setString(4, user.getMajor());
-            callableStatement.setInt(5, user.getLoginId());
-            callableStatement.setString(6, user.getPassword());
+            // Register the OUT parameter as a cursor
+            callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
 
             callableStatement.execute();
-            System.out.println("유저 업데이트 성공");
+
+            // Retrieve the cursor
+            ResultSet resultSet = (ResultSet) callableStatement.getObject(2);
+
+            // Process the cursor
+            while (resultSet.next()) {
+                // Retrieve columns from the result set
+                int event_calendar_id = resultSet.getInt("ID");
+
+                eventCalendar.setId(event_calendar_id);
+
+                // Print or process the retrieved values
+                System.out.println("EVENT_CALENDAR_ID: " + event_calendar_id);
+
+            }
+
+            resultSet.close();
+            System.out.println("유저 캘린더 검색 완료");
         } catch (SQLException e) {
             e.printStackTrace();
         }

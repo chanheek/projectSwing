@@ -137,6 +137,7 @@ public class Login extends JFrame {
 
                 UserDaoImpl userDao = new UserDaoImpl(connection);
                 userDao.readUser(userVo);
+                userDao.readUserCalendarInfo(eventCalendarVo);
 
                 JOptionPane.showMessageDialog(this, "로그인 성공!");
 
