@@ -4,11 +4,12 @@ import vo.EventCalendarVo;
 import vo.EventVo;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public interface EventDao {
 
     void createEvent(EventVo event) throws SQLException;
     void getAllEvent(EventCalendarVo eventCalendar) throws SQLException;
     void deleteEvent(EventVo event) throws SQLException;
-    int getEventId(EventVo event) throws  SQLException;
+    int getEventId(EventVo event, LocalDate selectedDate) throws  SQLException;
 }

@@ -51,16 +51,16 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public int getEventId(EventVo event) throws SQLException {
+    public int getEventId(EventVo event, LocalDate selectedDate) throws SQLException {
         String sql = "{call user_pkg.getEventId(?, ?, ?)}";
 
         try (CallableStatement callableStatement = connection.prepareCall(sql)) {
             callableStatement.setInt(1, event.getEventCalendarId());
-            callableStatement.setDate(2, Date.valueOf("선택한 날짜"));
-            callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
+            callableStatement.setDate(2, Date.valueOf(selectedDate));
+            callableStatement.registerOutParameter(3, OracleTypes.CURSOR);
             callableStatement.execute();
 
-            ResultSet resultSet = (ResultSet) callableStatement.getObject(2);
+            ResultSet resultSet = (ResultSet) callableStatement.getObject(3);
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");

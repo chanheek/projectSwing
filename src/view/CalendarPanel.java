@@ -347,7 +347,34 @@ public class CalendarPanel extends JPanel {
             for (String event : eventList) {
                 if (event != null) {
                     JMenuItem menuItem = new JMenuItem(event);
-                    menuItem.addActionListener(e -> showEventDetails(event));
+                    menuItem.addActionListener(e -> {
+                        EventVo eventVo = new EventVo();
+                        eventVo.setEventCalendarId(eventCalendarId);
+                        try {
+                            String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
+                            String username = "kk"; // DB 사용자 이름
+                            String password = "kk123"; // DB 비밀번호
+                            try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                                EventDaoImpl eventDao = new EventDaoImpl(connection);
+                                int eventId = eventDao.getEventId(eventVo, date);
+                                int result = JOptionPane.showConfirmDialog(
+                                        this,
+                                        "삭제하시겠습니까?",
+                                        "일정 삭제",
+                                        JOptionPane.YES_NO_OPTION
+                                );
+                                if (result == JOptionPane.YES_OPTION) {
+                                    eventVo.setId(eventId);
+                                    eventDao.deleteEvent(eventVo);
+                                    updateCalendar();
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    });
                     eventMenu.add(menuItem);
                 }
             }
