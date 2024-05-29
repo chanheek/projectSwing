@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.LocalDate;
@@ -62,6 +64,28 @@ public class CalendarPanel extends JPanel {
         // Disable cell editing for cell clicks
         calendarTable.setCellSelectionEnabled(false);
 
+        // Add mouse listener for table cells
+        calendarTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = calendarTable.rowAtPoint(e.getPoint());
+                int column = calendarTable.columnAtPoint(e.getPoint());
+                String cellValue = (String) calendarTable.getValueAt(row, column);
+                if (cellValue != null && !cellValue.isEmpty()) {
+                    String dayString = cellValue.replaceAll("<[^>]*>", "").replaceAll("\\D+", "").trim();
+                    if (!dayString.isEmpty()) {
+                        try {
+                            int day = Integer.parseInt(dayString);
+                            LocalDate clickedDate = currentYearMonth.atDay(day);
+                            showEventDialog(clickedDate, e.getX(), e.getY());
+                        } catch (NumberFormatException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
         // Create a panel to hold the month navigation controls
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BorderLayout());
@@ -97,8 +121,8 @@ public class CalendarPanel extends JPanel {
         controlPanel.add(monthLabel, BorderLayout.CENTER);
         JPanel comboBoxPanel = new JPanel();
         comboBoxPanel.add(yearComboBox);
+        comboBoxPanel.add(goToButton);
         comboBoxPanel.add(monthComboBox);
-        comboBoxPanel.add(goToButton); // "확인" 버튼 추가
         controlPanel.add(comboBoxPanel, BorderLayout.EAST);
 
         // Add the table and control panel to the main panel
@@ -194,7 +218,7 @@ public class CalendarPanel extends JPanel {
                     if (events.containsKey(currentDate)) {
                         for (String event : events.get(currentDate)) {
                             if (event != null) {
-                                cellText.append(event).append("<br>");
+                                cellText.append("<a href='#' style='color:black;text-decoration:none;'>").append(event).append("</a><br>");
                             }
                         }
                     }
@@ -314,6 +338,43 @@ public class CalendarPanel extends JPanel {
         panel.add(monthComboBox);
         panel.add(dayComboBox);
         return panel;
+    }
+
+    private void showEventDialog(LocalDate date, int x, int y) {
+        if (events.containsKey(date)) {
+            String[] eventList = events.get(date);
+            JPopupMenu eventMenu = new JPopupMenu();
+            for (String event : eventList) {
+                if (event != null) {
+                    JMenuItem menuItem = new JMenuItem(event);
+                    menuItem.addActionListener(e -> showEventDetails(event));
+                    eventMenu.add(menuItem);
+                }
+            }
+            eventMenu.show(calendarTable, x, y);
+        }
+    }
+
+    private void showEventDetails(String event) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "이벤트 세부 정보", true);
+        dialog.setLayout(new BorderLayout());
+
+        JTextArea textArea = new JTextArea(10, 30);
+        textArea.setEditable(false);
+        textArea.setText(event);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton closeButton = new JButton("닫기");
+        closeButton.addActionListener(e -> dialog.dispose());
+        buttonPanel.add(closeButton);
+
+        dialog.add(scrollPane, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
     private class CellRenderer extends JTextPane implements TableCellRenderer {
