@@ -1,5 +1,6 @@
 package view;
 
+import dao.EventDaoImpl;
 import dao.UserDaoImpl;
 import db.DBConnection;
 import vo.EventCalendarVo;
@@ -128,6 +129,9 @@ public class Login extends JFrame {
             UserVo userVo = new UserVo();
             EventCalendarVo eventCalendarVo = new EventCalendarVo();
 
+            UserDaoImpl userDao = new UserDaoImpl(connection);
+            EventDaoImpl eventDao = new EventDaoImpl(connection);
+
             int userExists = statement.getInt(3);
 
             if (userExists > 0) {
@@ -135,9 +139,10 @@ public class Login extends JFrame {
                 userVo.setLoginId(id);
                 eventCalendarVo.setUsersLoginId(id);
 
-                UserDaoImpl userDao = new UserDaoImpl(connection);
                 userDao.readUser(userVo);
                 userDao.readUserCalendarInfo(eventCalendarVo);
+                eventDao.getAllEvent(eventCalendarVo);
+
 
                 JOptionPane.showMessageDialog(this, "로그인 성공!");
 
