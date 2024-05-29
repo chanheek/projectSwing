@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,7 +17,7 @@ public class CalendarPanel extends JPanel {
     private JTable calendarTable;
     private DefaultTableModel calendarModel;
     private JComboBox<Integer> yearComboBox;
-    private JComboBox<String> monthComboBox;
+    private JComboBox<Integer> monthComboBox;
     private YearMonth currentYearMonth;
     private Map<LocalDate, String[]> events; // Map to hold events for each date
     private Map<LocalDate, String> notes; // Map to hold notes for each date
@@ -78,10 +76,10 @@ public class CalendarPanel extends JPanel {
         }
         yearComboBox.setFont(new Font("Arial", Font.PLAIN, 18));
 
-        monthComboBox = new JComboBox<>(new String[]{
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-        });
+        monthComboBox = new JComboBox<>();
+        for (int month = 1; month <= 12; month++) {
+            monthComboBox.addItem(month);
+        }
         monthComboBox.setFont(new Font("Arial", Font.PLAIN, 18));
 
         // Add components to control panel
@@ -130,7 +128,7 @@ public class CalendarPanel extends JPanel {
 
         goToButton.addActionListener(e -> {
             int selectedYear = (int) yearComboBox.getSelectedItem();
-            int selectedMonth = monthComboBox.getSelectedIndex() + 1;
+            int selectedMonth = (int) monthComboBox.getSelectedItem();
             currentYearMonth = YearMonth.of(selectedYear, selectedMonth);
             updateCalendar();
         });
@@ -228,13 +226,31 @@ public class CalendarPanel extends JPanel {
         JPanel datePanel = new JPanel(new GridLayout(2, 2));
         JLabel startDateLabel = new JLabel("시작 날짜:");
         JLabel endDateLabel = new JLabel("끝나는 날짜:");
-        JTextField startDateField = new JTextField(10);
-        JTextField endDateField = new JTextField(10);
+
+        JComboBox<Integer> startYearComboBox = new JComboBox<>();
+        JComboBox<Integer> startMonthComboBox = new JComboBox<>();
+        JComboBox<Integer> startDayComboBox = new JComboBox<>();
+        JComboBox<Integer> endYearComboBox = new JComboBox<>();
+        JComboBox<Integer> endMonthComboBox = new JComboBox<>();
+        JComboBox<Integer> endDayComboBox = new JComboBox<>();
+
+        for (int year = 2019; year <= 2029; year++) {
+            startYearComboBox.addItem(year);
+            endYearComboBox.addItem(year);
+        }
+        for (int month = 1; month <= 12; month++) {
+            startMonthComboBox.addItem(month);
+            endMonthComboBox.addItem(month);
+        }
+        for (int day = 1; day <= 31; day++) {
+            startDayComboBox.addItem(day);
+            endDayComboBox.addItem(day);
+        }
 
         datePanel.add(startDateLabel);
-        datePanel.add(startDateField);
+        datePanel.add(createDateSelectorPanel(startYearComboBox, startMonthComboBox, startDayComboBox));
         datePanel.add(endDateLabel);
-        datePanel.add(endDateField);
+        datePanel.add(createDateSelectorPanel(endYearComboBox, endMonthComboBox, endDayComboBox));
 
         JTextArea textArea = new JTextArea(10, 30);
         JScrollPane scrollPane = new JScrollPane(textArea);
@@ -244,8 +260,16 @@ public class CalendarPanel extends JPanel {
         JButton cancelButton = new JButton("취소");
 
         saveButton.addActionListener(e -> {
-            LocalDate startDate = LocalDate.parse(startDateField.getText());
-            LocalDate endDate = LocalDate.parse(endDateField.getText());
+            int startYear = (int) startYearComboBox.getSelectedItem();
+            int startMonth = (int) startMonthComboBox.getSelectedItem();
+            int startDay = (int) startDayComboBox.getSelectedItem();
+            LocalDate startDate = LocalDate.of(startYear, startMonth, startDay);
+
+            int endYear = (int) endYearComboBox.getSelectedItem();
+            int endMonth = (int) endMonthComboBox.getSelectedItem();
+            int endDay = (int) endDayComboBox.getSelectedItem();
+            LocalDate endDate = LocalDate.of(endYear, endMonth, endDay);
+
             String note = textArea.getText();
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                 notes.put(date, note);
@@ -266,6 +290,15 @@ public class CalendarPanel extends JPanel {
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+    }
+
+    private JPanel createDateSelectorPanel(JComboBox<Integer> yearComboBox, JComboBox<Integer> monthComboBox, JComboBox<Integer> dayComboBox) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(1, 3));
+        panel.add(yearComboBox);
+        panel.add(monthComboBox);
+        panel.add(dayComboBox);
+        return panel;
     }
 
     private class CellRenderer extends JTextPane implements TableCellRenderer {
