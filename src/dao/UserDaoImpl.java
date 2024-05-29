@@ -22,20 +22,13 @@ public class UserDaoImpl implements UserDao {
         String sql = "{call user_pkg.getStudentId(?, ?)}";
 
         try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-
             callableStatement.setInt(1, user.getLoginId());
-
-            // Register the OUT parameter as a cursor
             callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
-
             callableStatement.execute();
 
-            // Retrieve the cursor
             ResultSet resultSet = (ResultSet) callableStatement.getObject(2);
 
-            // Process the cursor
             while (resultSet.next()) {
-                // Retrieve columns from the result set
                 int id = resultSet.getInt("ID");
                 String name = resultSet.getString("NAME");
                 int grade = resultSet.getInt("GRADE");
