@@ -4,8 +4,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -60,28 +60,6 @@ public class CalendarPanel extends JPanel {
         // Disable cell editing for cell clicks
         calendarTable.setCellSelectionEnabled(false);
 
-        // Add mouse listener for table cells
-        calendarTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = calendarTable.rowAtPoint(e.getPoint());
-                int column = calendarTable.columnAtPoint(e.getPoint());
-                String cellValue = (String) calendarTable.getValueAt(row, column);
-                if (cellValue != null && !cellValue.isEmpty()) {
-                    String dayString = cellValue.replaceAll("<[^>]*>", "").replaceAll("\\D+", "").trim();
-                    if (!dayString.isEmpty()) {
-                        try {
-                            int day = Integer.parseInt(dayString);
-                            LocalDate clickedDate = currentYearMonth.atDay(day);
-                            openNoteDialog(clickedDate);
-                        } catch (NumberFormatException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
         // Create a panel to hold the month navigation controls
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BorderLayout());
@@ -91,6 +69,7 @@ public class CalendarPanel extends JPanel {
         monthLabel.setFont(new Font("Arial", Font.BOLD, 24));
         JButton todayButton = new JButton("오늘");
         JButton goToButton = new JButton("확인"); // 추가된 버튼
+        JButton addEventButton = new JButton("일정 추가"); // 일정 추가 버튼
 
         // Create year and month selectors
         yearComboBox = new JComboBox<>();
@@ -111,6 +90,7 @@ public class CalendarPanel extends JPanel {
         navPanel.add(nextMonthButton);
         navPanel.add(todayButton);
         navPanel.add(goToButton); // "확인" 버튼 추가
+        navPanel.add(addEventButton); // "일정 추가" 버튼 추가
         controlPanel.add(navPanel, BorderLayout.WEST);
         controlPanel.add(monthLabel, BorderLayout.CENTER);
         JPanel comboBoxPanel = new JPanel();
@@ -154,8 +134,9 @@ public class CalendarPanel extends JPanel {
             currentYearMonth = YearMonth.of(selectedYear, selectedMonth);
             updateCalendar();
         });
-    }
 
+        addEventButton.addActionListener(e -> openAddEventDialog());
+    }
 
     private void loadEventsFromDatabase() {
         String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
@@ -240,21 +221,35 @@ public class CalendarPanel extends JPanel {
         }
     }
 
-    private void openNoteDialog(LocalDate date) {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "메모 입력", true);
+    private void openAddEventDialog() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "일정 추가", true);
         dialog.setLayout(new BorderLayout());
 
+        JPanel datePanel = new JPanel(new GridLayout(2, 2));
+        JLabel startDateLabel = new JLabel("시작 날짜:");
+        JLabel endDateLabel = new JLabel("끝나는 날짜:");
+        JTextField startDateField = new JTextField(10);
+        JTextField endDateField = new JTextField(10);
+
+        datePanel.add(startDateLabel);
+        datePanel.add(startDateField);
+        datePanel.add(endDateLabel);
+        datePanel.add(endDateField);
+
         JTextArea textArea = new JTextArea(10, 30);
-        textArea.setText(notes.getOrDefault(date, ""));
         JScrollPane scrollPane = new JScrollPane(textArea);
-        dialog.add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         JButton saveButton = new JButton("확인");
         JButton cancelButton = new JButton("취소");
 
         saveButton.addActionListener(e -> {
-            notes.put(date, textArea.getText());
+            LocalDate startDate = LocalDate.parse(startDateField.getText());
+            LocalDate endDate = LocalDate.parse(endDateField.getText());
+            String note = textArea.getText();
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                notes.put(date, note);
+            }
             updateCalendar();
             dialog.dispose();
         });
@@ -264,6 +259,8 @@ public class CalendarPanel extends JPanel {
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
+        dialog.add(datePanel, BorderLayout.NORTH);
+        dialog.add(scrollPane, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
 
         dialog.pack();

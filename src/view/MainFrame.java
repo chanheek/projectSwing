@@ -21,14 +21,15 @@ public class MainFrame extends JFrame {
 
         // Create a panel for the left menu
         JPanel menuPanel = new JPanel();
-        menuPanel.setBackground(Color.LIGHT_GRAY);
+        menuPanel.setBackground(Color.white);
         menuPanel.setLayout(new GridLayout(2, 1));
 
         // Add buttons or labels to the menu panel
         JLabel label1 = new JLabel("학적 관리", SwingConstants.CENTER);
         JLabel label2 = new JLabel("일정 관리", SwingConstants.CENTER);
-        label1.setFont(new Font("Serif", Font.BOLD, 20));
-        label2.setFont(new Font("Serif", Font.BOLD, 20));
+        label1.setFont(new Font("맑은 고딕", Font.BOLD, 25));
+        label2.setFont(new Font("맑은 고딕", Font.BOLD, 25));
+//        label1.setFont(new Color();
 
         label1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         label2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -54,7 +55,7 @@ public class MainFrame extends JFrame {
 
         // Create a panel for the default content
         JPanel defaultPanel = new JPanel();
-        defaultPanel.setBackground(new Color(70, 130, 180)); // Blue color from the image
+        defaultPanel.setBackground(new Color(239, 246, 255)); // Blue color from the image
         defaultPanel.setLayout(new GridBagLayout());
 
         // Add a label with "KUP" text to the default content panel
