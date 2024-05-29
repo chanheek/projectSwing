@@ -1,4 +1,5 @@
 package service;
 
-public class EventServiceImpl implements EventService{
+public class EventServiceImpl implements EventService {
+
 }
