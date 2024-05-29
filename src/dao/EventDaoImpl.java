@@ -1,6 +1,6 @@
 package dao;
 
-import oracle.jdbc.OracleTypes;
+import oracle.jdbc.internal.OracleTypes;
 import vo.EventCalendarVo;
 import vo.EventVo;
 
@@ -51,7 +51,18 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public void createEvent(EventVo event) {
-        // Implement event creation logic
+    public void createEvent(EventVo event) throws SQLException {
+        String sql = "{call user_pkg.insertUserEvent(?,?,?,?)}"; // Assuming you have a stored procedure to handle event creation
+
+        try (CallableStatement callableStatement = connection.prepareCall(sql)) {
+            callableStatement.setString(1, event.getEvent());
+            callableStatement.setDate(2, Date.valueOf(event.getStartDate()));
+            callableStatement.setDate(3, Date.valueOf(event.getEndDate()));
+            callableStatement.setInt(4, event.getEventCalendarId());
+
+            callableStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

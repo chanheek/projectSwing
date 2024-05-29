@@ -2,6 +2,7 @@ package view;
 
 import dao.EventDaoImpl;
 import vo.EventCalendarVo;
+import vo.EventVo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -260,6 +261,27 @@ public class CalendarPanel extends JPanel {
             LocalDate endDate = LocalDate.of(endYear, endMonth, endDay);
 
             String note = textArea.getText();
+
+            // Create and save the event to the database
+            String event = note; // Assuming the note is the event detail
+            EventVo eventVo = new EventVo();
+            eventVo.setEventCalendarId(eventCalendarId);
+            eventVo.setEvent(event);
+            eventVo.setStartDate(String.valueOf(startDate));
+            eventVo.setEndDate(String.valueOf(endDate));
+
+            String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
+            String username = "kk"; // DB 사용자 이름
+            String password = "kk123"; // DB 비밀번호
+
+            try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                EventDaoImpl eventDao = new EventDaoImpl(connection);
+                eventDao.createEvent(eventVo);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            // Add the note to the notes map and update the calendar
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                 notes.put(date, note);
             }
