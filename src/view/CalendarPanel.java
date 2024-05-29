@@ -121,8 +121,8 @@ public class CalendarPanel extends JPanel {
         controlPanel.add(monthLabel, BorderLayout.CENTER);
         JPanel comboBoxPanel = new JPanel();
         comboBoxPanel.add(yearComboBox);
-        comboBoxPanel.add(goToButton);
         comboBoxPanel.add(monthComboBox);
+        comboBoxPanel.add(goToButton); // "확인" 버튼 추가
         controlPanel.add(comboBoxPanel, BorderLayout.EAST);
 
         // Add the table and control panel to the main panel
@@ -214,7 +214,7 @@ public class CalendarPanel extends JPanel {
                     week[column] = "";
                 } else {
                     LocalDate currentDate = currentYearMonth.atDay(day);
-                    StringBuilder cellText = new StringBuilder("<html><b>" + day + "</b><br>");
+                    StringBuilder cellText = new StringBuilder("<html>" + day + "<br>");
                     if (events.containsKey(currentDate)) {
                         for (String event : events.get(currentDate)) {
                             if (event != null) {
