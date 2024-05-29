@@ -10,8 +10,6 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         // Set the title of the window
         setTitle("KUP Management System");
-        setSize(800,1000);
-
         // Set the default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
