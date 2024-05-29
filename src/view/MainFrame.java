@@ -88,7 +88,7 @@ public class MainFrame extends JFrame {
 
         JTextField majorField = new JTextField(10);
         if (userVo.getMajor() != null) {
-            majorField.setText(String.valueOf(userVo.getGrade()));
+            majorField.setText(String.valueOf(userVo.getMajor()));
         } else {
             majorField.setText("MANAGER");
         }
