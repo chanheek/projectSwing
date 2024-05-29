@@ -93,6 +93,7 @@ public class MainFrame extends JFrame {
         } else {
             majorField.setText("MANAGER");
         }
+        majorField.setEditable(false);
 
         gbc.gridwidth = 1;
         gbc.gridy = 1;
