@@ -38,16 +38,9 @@ public class UserDaoImpl implements UserDao {
                 user.setName(name);
                 user.setGrade(grade);
                 user.setMajor(major);
-
-                // Print or process the retrieved values
-                System.out.println("ID: " + id);
-                System.out.println("Name: " + name);
-                System.out.println("Grade: " + grade);
-                System.out.println("Major: " + major);
             }
 
             resultSet.close();
-            System.out.println("유저 검색 완료");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -73,16 +66,10 @@ public class UserDaoImpl implements UserDao {
             while (resultSet.next()) {
                 // Retrieve columns from the result set
                 int event_calendar_id = resultSet.getInt("ID");
-
                 eventCalendar.setId(event_calendar_id);
-
-                // Print or process the retrieved values
-                System.out.println("EVENT_CALENDAR_ID: " + event_calendar_id);
-
             }
 
             resultSet.close();
-            System.out.println("유저 캘린더 검색 완료");
         } catch (SQLException e) {
             e.printStackTrace();
         }
