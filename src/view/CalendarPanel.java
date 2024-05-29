@@ -384,7 +384,9 @@ public class CalendarPanel extends JPanel {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton closeButton = new JButton("닫기");
+        JButton deleteButton = new JButton("삭제");
         closeButton.addActionListener(e -> dialog.dispose());
+        buttonPanel.add(deleteButton);
         buttonPanel.add(closeButton);
 
         dialog.add(scrollPane, BorderLayout.CENTER);
