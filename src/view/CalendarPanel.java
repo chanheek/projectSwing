@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -313,7 +315,13 @@ public class CalendarPanel extends JPanel {
 
             // Add the note to the notes map and update the calendar
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                notes.put(date, note);
+                // Add the event to the events map
+                events.computeIfAbsent(date, k -> new String[0]);
+                String[] currentEvents = events.get(date);
+                String[] newEvents = new String[currentEvents.length + 1];
+                System.arraycopy(currentEvents, 0, newEvents, 0, currentEvents.length);
+                newEvents[currentEvents.length] = event;
+                events.put(date, newEvents);
             }
             updateCalendar();
             dialog.dispose();
@@ -383,8 +391,17 @@ public class CalendarPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton deleteButton = new JButton("삭제");
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
         JButton closeButton = new JButton("닫기");
         closeButton.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(deleteButton);
         buttonPanel.add(closeButton);
 
         dialog.add(scrollPane, BorderLayout.CENTER);
