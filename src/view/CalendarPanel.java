@@ -12,10 +12,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -261,10 +261,15 @@ public class CalendarPanel extends JPanel {
             startMonthComboBox.addItem(month);
             endMonthComboBox.addItem(month);
         }
-        for (int day = 1; day <= 31; day++) {
-            startDayComboBox.addItem(day);
-            endDayComboBox.addItem(day);
-        }
+
+        // Add action listener to update day combo box based on selected year and month
+        startYearComboBox.addActionListener(e -> updateDayComboBox(startYearComboBox, startMonthComboBox, startDayComboBox));
+        startMonthComboBox.addActionListener(e -> updateDayComboBox(startYearComboBox, startMonthComboBox, startDayComboBox));
+        endYearComboBox.addActionListener(e -> updateDayComboBox(endYearComboBox, endMonthComboBox, endDayComboBox));
+        endMonthComboBox.addActionListener(e -> updateDayComboBox(endYearComboBox, endMonthComboBox, endDayComboBox));
+
+        updateDayComboBox(startYearComboBox, startMonthComboBox, startDayComboBox); // 초기화
+        updateDayComboBox(endYearComboBox, endMonthComboBox, endDayComboBox); // 초기화
 
         datePanel.add(startDateLabel);
         datePanel.add(createDateSelectorPanel(startYearComboBox, startMonthComboBox, startDayComboBox));
@@ -284,49 +289,57 @@ public class CalendarPanel extends JPanel {
         buttonPanel.add(buttonRightPanel, BorderLayout.CENTER);
 
         saveButton.addActionListener(e -> {
-            int startYear = (int) startYearComboBox.getSelectedItem();
-            int startMonth = (int) startMonthComboBox.getSelectedItem();
-            int startDay = (int) startDayComboBox.getSelectedItem();
-            LocalDate startDate = LocalDate.of(startYear, startMonth, startDay);
+            try {
+                int startYear = (int) startYearComboBox.getSelectedItem();
+                int startMonth = (int) startMonthComboBox.getSelectedItem();
+                int startDay = (int) startDayComboBox.getSelectedItem();
+                LocalDate startDate = LocalDate.of(startYear, startMonth, startDay);
 
-            int endYear = (int) endYearComboBox.getSelectedItem();
-            int endMonth = (int) endMonthComboBox.getSelectedItem();
-            int endDay = (int) endDayComboBox.getSelectedItem();
-            LocalDate endDate = LocalDate.of(endYear, endMonth, endDay);
+                int endYear = (int) endYearComboBox.getSelectedItem();
+                int endMonth = (int) endMonthComboBox.getSelectedItem();
+                int endDay = (int) endDayComboBox.getSelectedItem();
+                LocalDate endDate = LocalDate.of(endYear, endMonth, endDay);
 
-            String note = textArea.getText();
+                if (endDate.isBefore(startDate)) {
+                    throw new DateTimeException("End date cannot be before start date");
+                }
 
-            // Create and save the event to the database
-            String event = note; // Assuming the note is the event detail
-            EventVo eventVo = new EventVo();
-            eventVo.setEventCalendarId(eventCalendarId);
-            eventVo.setEvent(event);
-            eventVo.setStartDate(String.valueOf(startDate));
-            eventVo.setEndDate(String.valueOf(endDate));
+                String note = textArea.getText();
 
-            String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
-            String username = "kk"; // DB 사용자 이름
-            String password = "kk123"; // DB 비밀번호
+                // Create and save the event to the database
+                String event = note; // Assuming the note is the event detail
+                EventVo eventVo = new EventVo();
+                eventVo.setEventCalendarId(eventCalendarId);
+                eventVo.setEvent(event);
+                eventVo.setStartDate(String.valueOf(startDate));
+                eventVo.setEndDate(String.valueOf(endDate));
 
-            try (Connection connection = DriverManager.getConnection(url, username, password)) {
-                EventDaoImpl eventDao = new EventDaoImpl(connection);
-                eventDao.createEvent(eventVo);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
+                String username = "kk"; // DB 사용자 이름
+                String password = "kk123"; // DB 비밀번호
+
+                try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                    EventDaoImpl eventDao = new EventDaoImpl(connection);
+                    eventDao.createEvent(eventVo);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                // Add the note to the notes map and update the calendar
+                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                    // Add the event to the events map
+                    events.computeIfAbsent(date, k -> new String[0]);
+                    String[] currentEvents = events.get(date);
+                    String[] newEvents = new String[currentEvents.length + 1];
+                    System.arraycopy(currentEvents, 0, newEvents, 0, currentEvents.length);
+                    newEvents[currentEvents.length] = event;
+                    events.put(date, newEvents);
+                }
+                updateCalendar();
+                dialog.dispose();
+            } catch (DateTimeException ex) {
+                JOptionPane.showMessageDialog(CalendarPanel.this, "날짜 입력이 유효하지 않습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
             }
-
-            // Add the note to the notes map and update the calendar
-            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                // Add the event to the events map
-                events.computeIfAbsent(date, k -> new String[0]);
-                String[] currentEvents = events.get(date);
-                String[] newEvents = new String[currentEvents.length + 1];
-                System.arraycopy(currentEvents, 0, newEvents, 0, currentEvents.length);
-                newEvents[currentEvents.length] = event;
-                events.put(date, newEvents);
-            }
-            updateCalendar();
-            dialog.dispose();
         });
 
         cancelButton.addActionListener(e -> dialog.dispose());
@@ -339,6 +352,18 @@ public class CalendarPanel extends JPanel {
         dialog.setLocationRelativeTo(this);
         dialog.setModal(false); // 모달 고정 해제
         dialog.setVisible(true);
+    }
+
+    private void updateDayComboBox(JComboBox<Integer> yearComboBox, JComboBox<Integer> monthComboBox, JComboBox<Integer> dayComboBox) {
+        int year = (int) yearComboBox.getSelectedItem();
+        int month = (int) monthComboBox.getSelectedItem();
+        YearMonth yearMonth = YearMonth.of(year, month);
+        int daysInMonth = yearMonth.lengthOfMonth();
+
+        dayComboBox.removeAllItems();
+        for (int day = 1; day <= daysInMonth; day++) {
+            dayComboBox.addItem(day);
+        }
     }
 
     private JPanel createDateSelectorPanel(JComboBox<Integer> yearComboBox, JComboBox<Integer> monthComboBox, JComboBox<Integer> dayComboBox) {
@@ -406,13 +431,22 @@ public class CalendarPanel extends JPanel {
                     try (Connection connection = DriverManager.getConnection(url, username, password)) {
                         EventDaoImpl eventDao = new EventDaoImpl(connection);
                         eventDao.deleteEvent(eventId);
+
+                        // Reload events from the database
+                        loadEventsFromDatabase();
+
+                        // Immediately update the calendar
+                        updateCalendar();
                     } catch (SQLException ex) {
                         throw new RuntimeException(ex);
                     }
+                    JOptionPane.showMessageDialog(null, "일정이 삭제되었습니다.", "일정 삭제", JOptionPane.YES_OPTION);
                     dialog.dispose();
                 }
             }
         });
+
+
         JButton closeButton = new JButton("닫기");
         closeButton.addActionListener(e -> dialog.dispose());
 
