@@ -10,6 +10,6 @@ public interface EventDao {
 
     void createEvent(EventVo event) throws SQLException;
     void getAllEvent(EventCalendarVo eventCalendar) throws SQLException;
-    void deleteEvent(EventVo event) throws SQLException;
+    void deleteEvent(int eventId) throws SQLException;
     int getEventId(EventVo event, LocalDate selectedDate) throws  SQLException;
 }

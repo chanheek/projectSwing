@@ -88,11 +88,11 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public void deleteEvent(EventVo event) throws SQLException {
+    public void deleteEvent(int eventId) throws SQLException {
         String sql = "{call user_pkg.deleteUserEvent(?)}";
 
         try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-            callableStatement.setInt(1, event.getId());
+            callableStatement.setInt(1, eventId);
 
             callableStatement.execute();
         } catch (SQLException e) {

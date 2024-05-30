@@ -12,8 +12,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -366,7 +368,7 @@ public class CalendarPanel extends JPanel {
                                 EventDaoImpl eventDao = new EventDaoImpl(connection);
                                 int eventId = eventDao.getEventId(eventVo, date);
                                 // Now you have the event ID, you can do further actions if needed
-                                showEventDetails(event + " (ID: " + eventId + ")");
+                                showEventDetails(event + " (ID: " + eventId + ")", eventId);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -381,7 +383,7 @@ public class CalendarPanel extends JPanel {
         }
     }
 
-    private void showEventDetails(String event) {
+    private void showEventDetails(String event, int eventId) {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "이벤트 세부 정보", true);
         dialog.setLayout(new BorderLayout());
 
@@ -395,7 +397,20 @@ public class CalendarPanel extends JPanel {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int result = JOptionPane.showConfirmDialog(null, "일정을 삭제하시겠습니까?", "일정 삭제", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    String url = "jdbc:oracle:thin:@localhost:1521/xe"; // DB URL
+                    String username = "kk"; // DB 사용자 이름
+                    String password = "kk123"; // DB 비밀번호
 
+                    try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                        EventDaoImpl eventDao = new EventDaoImpl(connection);
+                        eventDao.deleteEvent(eventId);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    dialog.dispose();
+                }
             }
         });
         JButton closeButton = new JButton("닫기");
