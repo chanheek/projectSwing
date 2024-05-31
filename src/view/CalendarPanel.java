@@ -411,7 +411,7 @@ public class CalendarPanel extends JPanel {
     }
 
     private void showEventDetails(EventVo eventVo, String event) {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "이벤트 세부 정보", true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "일정 세부 정보", true);
         dialog.setLayout(new BorderLayout());
 
         JTextArea textArea = new JTextArea(10, 30);

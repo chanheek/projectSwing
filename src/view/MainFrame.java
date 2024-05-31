@@ -25,7 +25,7 @@ public class MainFrame extends JFrame {
         menuPanel.setLayout(new GridLayout(2, 1));
 
         // Add buttons or labels to the menu panel
-        JLabel label1 = new JLabel("학적 관리", SwingConstants.CENTER);
+        JLabel label1 = new JLabel("학적 조회", SwingConstants.CENTER);
         JLabel label2 = new JLabel("일정 관리", SwingConstants.CENTER);
         label1.setFont(new Font("맑은 고딕", Font.BOLD, 25));
         label2.setFont(new Font("맑은 고딕", Font.BOLD, 25));
