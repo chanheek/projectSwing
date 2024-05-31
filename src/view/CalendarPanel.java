@@ -338,7 +338,7 @@ public class CalendarPanel extends JPanel {
                 updateCalendar();
                 dialog.dispose();
             } catch (DateTimeException ex) {
-                JOptionPane.showMessageDialog(CalendarPanel.this, "날짜 입력이 유효하지 않습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(CalendarPanel.this, "날짜 입력이 유효하지 않습니다.", "오류", JOptionPane.ERROR_MESSAGE);
             }
         });
 
