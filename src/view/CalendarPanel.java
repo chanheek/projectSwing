@@ -391,9 +391,11 @@ public class CalendarPanel extends JPanel {
                             String password = "kk123"; // DB 비밀번호
                             try (Connection connection = DriverManager.getConnection(url, username, password)) {
                                 EventDaoImpl eventDao = new EventDaoImpl(connection);
-                                int eventId = eventDao.getEventId(eventVo, date);
+                                int eventId = eventDao.getEventId(eventVo, event, date);
+                                eventVo.setId(eventId);
+
                                 // Now you have the event ID, you can do further actions if needed
-                                showEventDetails(event + " (ID: " + eventId + ")", eventId);
+                                showEventDetails(eventVo, event);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -408,7 +410,7 @@ public class CalendarPanel extends JPanel {
         }
     }
 
-    private void showEventDetails(String event, int eventId) {
+    private void showEventDetails(EventVo eventVo, String event) {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "이벤트 세부 정보", true);
         dialog.setLayout(new BorderLayout());
 
@@ -430,7 +432,7 @@ public class CalendarPanel extends JPanel {
 
                     try (Connection connection = DriverManager.getConnection(url, username, password)) {
                         EventDaoImpl eventDao = new EventDaoImpl(connection);
-                        eventDao.deleteEvent(eventId);
+                        eventDao.deleteEvent(eventVo.getId());
 
                         // Reload events from the database
                         loadEventsFromDatabase();
